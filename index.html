@@ -61,6 +61,12 @@
         .result-card {
             backdrop-filter: blur(2px);
         }
+        .social-link {
+            transition: all 0.3s ease;
+        }
+        .social-link:hover {
+            transform: translateY(-3px);
+        }
     </style>
 </head>
 <body class="font-sans antialiased">
@@ -188,12 +194,51 @@
                 </div>
             </div>
         </div>
-
-        <!-- Footer tips kecil -->
-        <div class="text-center text-xs text-gray-400 mt-10 border-t pt-6">
-            <i class="fas fa-shield-alt"></i> Simulasi cerdas berbasis aturan ATS (Keyword, Format, Struktur) - Tidak menyimpan data pribadi.
-        </div>
     </main>
+
+    <!-- Footer dengan Link LinkedIn & GitHub -->
+    <footer class="bg-white/90 backdrop-blur-sm border-t border-gray-200 mt-16">
+        <div class="max-w-6xl mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="text-center md:text-left">
+                    <div class="flex items-center gap-2 justify-center md:justify-start">
+                        <i class="fas fa-file-alt text-indigo-600 text-xl"></i>
+                        <span class="font-semibold text-gray-700">ATS CV Reviewer</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">© 2026 Smart CV Checker | Optimalkan karirmu</p>
+                </div>
+                
+                <div class="flex gap-6">
+                    <!-- LinkedIn Link -->
+                    <a href="https://www.linkedin.com/in/syawalmaulanaakbari" target="_blank" rel="noopener noreferrer" class="social-link flex items-center gap-2 text-gray-600 hover:text-indigo-600 transition-colors group">
+                        <div class="bg-gray-100 group-hover:bg-indigo-100 p-2 rounded-full transition-all">
+                            <i class="fab fa-linkedin-in text-lg"></i>
+                        </div>
+                        <span class="text-sm font-medium hidden sm:inline">LinkedIn</span>
+                    </a>
+                    
+                    <!-- GitHub Link -->
+                    <a href="https://github.com/Syawal1997/ATS-CV-Reviewer-Smart-CV-Checker.git" target="_blank" rel="noopener noreferrer" class="social-link flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group">
+                        <div class="bg-gray-100 group-hover:bg-gray-200 p-2 rounded-full transition-all">
+                            <i class="fab fa-github text-lg"></i>
+                        </div>
+                        <span class="text-sm font-medium hidden sm:inline">GitHub</span>
+                    </a>
+                </div>
+                
+                <div class="text-xs text-gray-400 text-center md:text-right">
+                    <i class="fas fa-shield-alt mr-1"></i> Simulasi cerdas berbasis aturan ATS
+                    <br class="block sm:hidden">
+                    <span class="hidden sm:inline">|</span> Tidak menyimpan data pribadi
+                </div>
+            </div>
+            
+            <!-- Additional credit line -->
+            <div class="text-center text-xs text-gray-400 mt-6 pt-4 border-t border-gray-100">
+                <span>🚀 Dibuat dengan <i class="fas fa-heart text-red-400"></i> untuk membantu pencari kerja | ATS-Friendly Resume Checker</span>
+            </div>
+        </div>
+    </footer>
 
     <script>
         // ---------- DOM Elements ----------
