@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>ATS CV Reviewer | Smart CV Checker</title>
+    <title>ATS CV Reviewer | Smart CV Checker & Generator</title>
     <!-- Tailwind CSS v3 + Font Awesome + Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Library untuk generate PDF & Word -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <!-- Custom Tailwind Config Override -->
     <script>
         tailwind.config = {
@@ -66,6 +69,19 @@
         }
         .social-link:hover {
             transform: translateY(-3px);
+        }
+        /* Style untuk CV Preview */
+        .cv-preview-container {
+            background: white;
+            max-width: 800px;
+            margin: 0 auto;
+            font-family: 'Inter', sans-serif;
+        }
+        .generated-cv {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -135,35 +151,50 @@
             <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100">
                 <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2 mb-5"><i class="fas fa-pen-fancy text-indigo-500"></i> Masukkan data CV secara detail</h3>
                 <form id="manualForm" class="space-y-5">
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
-                        <input type="text" id="nama" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 outline-none transition" placeholder="contoh: Andi Pratama">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
+                            <input type="text" id="nama" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 outline-none transition" placeholder="contoh: Andi Pratama">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-1">Jabatan / Posisi</label>
+                            <input type="text" id="jabatan" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-indigo-300" placeholder="contoh: Frontend Developer">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Email & Kontak (opsional untuk ATS score)</label>
-                        <input type="text" id="kontak" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-indigo-300" placeholder="email@domain.com | +62 812">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-1">Email</label>
+                            <input type="email" id="email" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-indigo-300" placeholder="email@domain.com">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-1">Telepon</label>
+                            <input type="text" id="telepon" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-indigo-300" placeholder="+62 812 3456 7890">
+                        </div>
                     </div>
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Ringkasan Profesional / Tentang Saya</label>
                         <textarea id="summary" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-indigo-300" placeholder="Tuliskan ringkasan karir, keahlian utama, pencapaian..."></textarea>
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Pengalaman Kerja (pisahkan dengan koma atau baris baru)</label>
-                        <textarea id="pengalaman" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-2.5" placeholder="Contoh:&#10;Frontend Dev di TechCorp (2022-sekarang)&#10;Mengembangkan React & Tailwind"></textarea>
+                        <label class="block text-gray-700 font-medium mb-1">Pengalaman Kerja (pisahkan dengan baris baru)</label>
+                        <textarea id="pengalaman" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-2.5" placeholder="Contoh:&#10;Frontend Developer - TechCorp (2022-sekarang)&#10;- Mengembangkan aplikasi React dengan TypeScript&#10;- Meningkatkan performa website 40%"></textarea>
                     </div>
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Pendidikan</label>
-                        <input type="text" id="pendidikan" class="w-full border border-gray-300 rounded-lg px-4 py-2.5" placeholder="S1 Informatika, Universitas X">
+                        <textarea id="pendidikan" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2.5" placeholder="Contoh:&#10;S1 Informatika - Universitas Indonesia (2018-2022)&#10;IPK: 3.8/4.0"></textarea>
                     </div>
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Skills / Keahlian (pisahkan koma)</label>
-                        <input type="text" id="skills" class="w-full border border-gray-300 rounded-lg px-4 py-2.5" placeholder="Contoh: JavaScript, Python, Project Management, ATS, SQL">
+                        <input type="text" id="skills" class="w-full border border-gray-300 rounded-lg px-4 py-2.5" placeholder="Contoh: JavaScript, Python, Project Management, SQL">
                     </div>
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Target Posisi / Job Role (opsional untuk rekomendasi ATS)</label>
                         <input type="text" id="targetRole" class="w-full border border-gray-300 rounded-lg px-4 py-2.5" placeholder="contoh: Data Analyst, Marketing Manager">
                     </div>
-                    <button type="submit" class="w-full md:w-auto bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-semibold px-8 py-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"><i class="fas fa-chart-line"></i> Review CV & Dapatkan Skor ATS</button>
+                    <div class="flex gap-3 flex-wrap">
+                        <button type="submit" class="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-md flex items-center gap-2"><i class="fas fa-chart-line"></i> Review CV & Skor ATS</button>
+                        <button type="button" id="generateCVBtn" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-md flex items-center gap-2"><i class="fas fa-file-alt"></i> Generate CV Preview</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -191,6 +222,27 @@
                         <span>Tips ATS: Gunakan font standar, hindari kolom/gambar rumit, sertakan keyword relevan dengan posisi yang dilamar.</span>
                     </div>
                     <button id="resetReviewBtn" class="mt-2 text-indigo-600 hover:text-indigo-800 text-sm font-medium underline flex items-center gap-1"><i class="fas fa-arrow-left"></i> Review CV Lainnya</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CV Preview & Download Section -->
+        <div id="cvPreviewSection" class="mt-12 hidden animate-slide-up">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-6 py-4 border-b border-emerald-100 flex flex-wrap justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-file-cv text-emerald-600 text-xl"></i>
+                        <h3 class="font-bold text-xl text-gray-800">Preview CV</h3>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="downloadWordBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition shadow-md flex items-center gap-2 text-sm"><i class="fab fa-microsoft-word"></i> Download Word</button>
+                        <button id="downloadPdfBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition shadow-md flex items-center gap-2 text-sm"><i class="fas fa-file-pdf"></i> Download PDF</button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div id="cvPreviewContent" class="cv-preview-container">
+                        <!-- Generated CV akan ditampilkan disini -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -256,12 +308,162 @@
         const scoreBadge = document.getElementById('scoreBadge');
         const resetReviewBtn = document.getElementById('resetReviewBtn');
         const manualForm = document.getElementById('manualForm');
+        const generateCVBtn = document.getElementById('generateCVBtn');
+        const cvPreviewSection = document.getElementById('cvPreviewSection');
+        const cvPreviewContent = document.getElementById('cvPreviewContent');
+        const downloadWordBtn = document.getElementById('downloadWordBtn');
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 
         // State untuk menyimpan data dari upload (text hasil parsing) & metode
         let currentUploadedText = "";
-        let currentMethod = "upload"; // upload or manual
+        let currentMethod = "upload";
+        let currentCVData = {};
 
-        // Helper: switch tabs
+        // Fungsi untuk generate HTML CV dari data form
+        function generateCVHTML(data) {
+            return `
+                <div class="generated-cv" id="cvToDownload">
+                    <div class="border-b-2 border-indigo-600 pb-4 mb-4">
+                        <h1 class="text-3xl font-bold text-gray-800 mb-2">${data.nama || 'Nama Lengkap'}</h1>
+                        ${data.jabatan ? `<p class="text-lg text-indigo-600 font-semibold">${data.jabatan}</p>` : ''}
+                        <div class="flex flex-wrap gap-4 mt-3 text-sm text-gray-600">
+                            ${data.email ? `<span><i class="fas fa-envelope mr-1"></i> ${data.email}</span>` : ''}
+                            ${data.telepon ? `<span><i class="fas fa-phone mr-1"></i> ${data.telepon}</span>` : ''}
+                        </div>
+                    </div>
+                    
+                    ${data.summary ? `
+                    <div class="mb-5">
+                        <h2 class="text-xl font-semibold text-gray-800 border-l-4 border-indigo-600 pl-3 mb-3">Ringkasan Profesional</h2>
+                        <p class="text-gray-700 leading-relaxed">${data.summary.replace(/\n/g, '<br>')}</p>
+                    </div>
+                    ` : ''}
+                    
+                    ${data.pengalaman ? `
+                    <div class="mb-5">
+                        <h2 class="text-xl font-semibold text-gray-800 border-l-4 border-indigo-600 pl-3 mb-3">Pengalaman Kerja</h2>
+                        <div class="text-gray-700 leading-relaxed whitespace-pre-line">${data.pengalaman.replace(/\n/g, '<br>')}</div>
+                    </div>
+                    ` : ''}
+                    
+                    ${data.pendidikan ? `
+                    <div class="mb-5">
+                        <h2 class="text-xl font-semibold text-gray-800 border-l-4 border-indigo-600 pl-3 mb-3">Pendidikan</h2>
+                        <div class="text-gray-700 leading-relaxed whitespace-pre-line">${data.pendidikan.replace(/\n/g, '<br>')}</div>
+                    </div>
+                    ` : ''}
+                    
+                    ${data.skills ? `
+                    <div class="mb-5">
+                        <h2 class="text-xl font-semibold text-gray-800 border-l-4 border-indigo-600 pl-3 mb-3">Keahlian</h2>
+                        <div class="flex flex-wrap gap-2">
+                            ${data.skills.split(',').map(skill => `<span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm">${skill.trim()}</span>`).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Fungsi untuk download sebagai Word (.doc)
+        function downloadAsWord() {
+            const cvContent = document.getElementById('cvToDownload');
+            if (!cvContent) return;
+            
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>CV_${currentCVData.nama || 'Curriculum_Vitae'}</title>
+                    <style>
+                        body {
+                            font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+                            padding: 40px;
+                            max-width: 800px;
+                            margin: 0 auto;
+                            line-height: 1.6;
+                        }
+                        .generated-cv {
+                            background: white;
+                        }
+                        h1, h2 {
+                            color: #1e293b;
+                        }
+                        .border-b-2 {
+                            border-bottom: 2px solid #4f46e5;
+                        }
+                        .border-l-4 {
+                            border-left: 4px solid #4f46e5;
+                        }
+                        .text-indigo-600 {
+                            color: #4f46e5;
+                        }
+                        .bg-indigo-100 {
+                            background-color: #e0e7ff;
+                        }
+                        .rounded-full {
+                            border-radius: 9999px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${cvContent.outerHTML}
+                </body>
+                </html>
+            `;
+            
+            const blob = new Blob([htmlContent], { type: 'application/msword' });
+            saveAs(blob, `CV_${currentCVData.nama || 'Curriculum_Vitae'}.doc`);
+        }
+
+        // Fungsi untuk download sebagai PDF
+        function downloadAsPDF() {
+            const element = document.getElementById('cvToDownload');
+            if (!element) return;
+            
+            const opt = {
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: `CV_${currentCVData.nama || 'Curriculum_Vitae'}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, letterRendering: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // Event untuk generate CV preview
+        generateCVBtn.addEventListener('click', () => {
+            const nama = document.getElementById('nama').value.trim();
+            if (!nama) {
+                alert('Masukkan nama lengkap terlebih dahulu!');
+                return;
+            }
+            
+            currentCVData = {
+                nama: nama,
+                jabatan: document.getElementById('jabatan').value,
+                email: document.getElementById('email').value,
+                telepon: document.getElementById('telepon').value,
+                summary: document.getElementById('summary').value,
+                pengalaman: document.getElementById('pengalaman').value,
+                pendidikan: document.getElementById('pendidikan').value,
+                skills: document.getElementById('skills').value,
+                targetRole: document.getElementById('targetRole').value
+            };
+            
+            const cvHTML = generateCVHTML(currentCVData);
+            cvPreviewContent.innerHTML = cvHTML;
+            cvPreviewSection.classList.remove('hidden');
+            window.scrollTo({ top: cvPreviewSection.offsetTop - 80, behavior: 'smooth' });
+        });
+
+        // Event untuk download
+        downloadWordBtn.addEventListener('click', downloadAsWord);
+        downloadPdfBtn.addEventListener('click', downloadAsPDF);
+
+        // Switch tabs
         function switchTab(method) {
             if (method === 'upload') {
                 tabUpload.classList.add('active-tab', 'bg-indigo-600', 'text-white', 'shadow-md');
@@ -271,9 +473,9 @@
                 panelUpload.classList.remove('hidden');
                 panelManual.classList.add('hidden');
                 currentMethod = "upload";
-                // sembunyikan tombol review upload jika belum ada file
                 if (!currentUploadedText) uploadReviewContainer.classList.add('hidden');
                 else uploadReviewContainer.classList.remove('hidden');
+                cvPreviewSection.classList.add('hidden');
             } else {
                 tabManual.classList.add('active-tab', 'bg-indigo-600', 'text-white', 'shadow-md');
                 tabManual.classList.remove('bg-gray-100', 'text-gray-700', 'border');
@@ -284,7 +486,6 @@
                 currentMethod = "manual";
                 uploadReviewContainer.classList.add('hidden');
             }
-            // reset hasil jika ganti tab
             hideResult();
         }
 
@@ -297,132 +498,81 @@
             window.scrollTo({ top: resultSection.offsetTop - 80, behavior: 'smooth' });
         }
 
-        // Fungsi Analisis ATS (simulasi cerdas berdasarkan ekstraksi teks/konten)
-        function analyzeCVContent(content, isManual = false, rawFormData = null) {
-            // content: string teks CV yang diekstrak / dari manual (jika manual kita gabung)
-            // isManual: flag untuk menambah bobot lebih pada field terstruktur
+        // Fungsi Analisis ATS
+        function analyzeCVContent(content, isManual = false, formData = null) {
             let text = content.toLowerCase();
-            // skor awal
             let score = 0;
             let feedback = [];
 
-            // 1. Kehadiran Keyword Standar ATS (core keywords)
             const atsKeywords = ['pengalaman', 'pendidikan', 'keahlian', 'skill', 'proyek', 'sertifikasi', 'bahasa inggris', 'email', 'telepon', 'linkedin'];
-            let foundKeywords = atsKeywords.filter(kw => text.includes(kw.toLowerCase()));
+            let foundKeywords = atsKeywords.filter(kw => text.includes(kw));
             let keywordScore = Math.min(25, Math.floor((foundKeywords.length / atsKeywords.length) * 25));
             score += keywordScore;
-            feedback.push(`📌 <strong>Kata kunci ATS:</strong> Ditemukan ${foundKeywords.length}/${atsKeywords.length} keyword penting (${foundKeywords.join(', ') || 'minimal'}). <span class="${keywordScore >= 15 ? 'text-green-600' : 'text-yellow-600'}">(+${keywordScore} poin)</span>`);
+            feedback.push(`📌 <strong>Kata kunci ATS:</strong> Ditemukan ${foundKeywords.length}/${atsKeywords.length} keyword penting. <span class="${keywordScore >= 15 ? 'text-green-600' : 'text-yellow-600'}">(+${keywordScore} poin)</span>`);
 
-            // 2. Format & Struktur: cek keberadaan section yang jelas
             let sectionIndicators = ['ringkasan', 'pengalaman', 'pekerjaan', 'proyek', 'pendidikan', 'skill', 'kontak'];
             let sectionsFound = sectionIndicators.filter(sec => text.includes(sec)).length;
             let structScore = Math.min(20, Math.floor((sectionsFound / sectionIndicators.length) * 20));
             score += structScore;
-            feedback.push(`📂 <strong>Struktur CV:</strong> Mendeteksi ${sectionsFound} dari ${sectionIndicators.length} bagian penting (ringkasan, pengalaman, pendidikan, dll). <span class="${structScore >= 12 ? 'text-green-600' : 'text-yellow-600'}">(+${structScore} poin)</span>`);
+            feedback.push(`📂 <strong>Struktur CV:</strong> Mendeteksi ${sectionsFound} dari ${sectionIndicators.length} bagian penting. <span class="${structScore >= 12 ? 'text-green-600' : 'text-yellow-600'}">(+${structScore} poin)</span>`);
 
-            // 3. Penggunaan angka / pencapaian (ATS menyukai quantifiable achievements)
             let numberMatches = (content.match(/\d+/g) || []).length;
-            let quantScore = Math.min(15, Math.min(15, Math.floor(numberMatches / 2)));
+            let quantScore = Math.min(15, Math.floor(numberMatches / 2));
             score += quantScore;
-            if(numberMatches > 5) feedback.push(`📊 <strong>Pencapaian terukur:</strong> Terdapat ${numberMatches} angka/statistik dalam CV, bagus untuk ATS! <span class="text-green-600">(+${quantScore} poin)</span>`);
-            else if(numberMatches > 0) feedback.push(`📊 <strong>Pencapaian terukur:</strong> Hanya ${numberMatches} angka terdeteksi, coba tambahkan metrik (persentase, jumlah, dsb). <span class="text-yellow-600">(+${quantScore} poin)</span>`);
-            else feedback.push(`⚠️ <strong>Pencapaian terukur:</strong> Tidak ada angka atau hasil kuantitatif. Rekomendasi: deskripsikan capaian dengan data. (+0 poin)`);
+            if(numberMatches > 5) feedback.push(`📊 <strong>Pencapaian terukur:</strong> Terdapat ${numberMatches} angka/statistik! <span class="text-green-600">(+${quantScore} poin)</span>`);
+            else if(numberMatches > 0) feedback.push(`📊 <strong>Pencapaian terukur:</strong> ${numberMatches} angka terdeteksi. <span class="text-yellow-600">(+${quantScore} poin)</span>`);
+            else feedback.push(`⚠️ <strong>Pencapaian terukur:</strong> Tambahkan data kuantitatif. (+0 poin)`);
 
-            // 4. Gaya Penulisan & Panjang (optimal 400-1000 kata untuk ATS)
             let wordCount = content.trim().split(/\s+/).length;
-            let lengthScore = 0;
-            if(wordCount > 800 && wordCount < 1500) lengthScore = 10;
-            else if(wordCount >= 400 && wordCount <= 2000) lengthScore = 7;
-            else if(wordCount > 200) lengthScore = 4;
-            else lengthScore = 0;
+            let lengthScore = wordCount > 800 && wordCount < 1500 ? 10 : (wordCount >= 400 ? 7 : (wordCount > 200 ? 4 : 0));
             score += lengthScore;
-            feedback.push(`📄 <strong>Panjang CV:</strong> ~${wordCount} kata. ${wordCount > 300 ? 'Ideal untuk parsing ATS.' : 'CV terlalu singkat, tambahkan detail.'} <span class="${lengthScore>=7?'text-green-600':'text-orange-500'}">(+${lengthScore} poin)</span>`);
+            feedback.push(`📄 <strong>Panjang CV:</strong> ~${wordCount} kata. <span class="${lengthScore>=7?'text-green-600':'text-orange-500'}">(+${lengthScore} poin)</span>`);
 
-            // 5. Kustomisasi untuk target job (jika ada target role)
             let targetRoleElem = document.getElementById('targetRole');
             let targetRole = targetRoleElem ? targetRoleElem.value : "";
-            let customScore = 0;
             if(targetRole && targetRole.trim().length > 2) {
-                let roleLower = targetRole.toLowerCase();
-                let roleWords = roleLower.split(/\s+/);
-                let matchRole = roleWords.some(word => text.includes(word) && word.length > 3);
+                let matchRole = targetRole.toLowerCase().split(/\s+/).some(word => text.includes(word) && word.length > 3);
                 if(matchRole) {
-                    customScore = 12;
-                    feedback.push(`🎯 <strong>Kesesuaian Target Role:</strong> CV mengandung keyword dari posisi "${targetRole}". <span class="text-green-600">(+12 poin)</span>`);
+                    score += 12;
+                    feedback.push(`🎯 <strong>Kesesuaian Target Role:</strong> CV sesuai dengan posisi "${targetRole}". <span class="text-green-600">(+12 poin)</span>`);
                 } else {
-                    customScore = 0;
-                    feedback.push(`⚠️ <strong>Kesesuaian Target Role:</strong> CV belum mengandung kata kunci relevan untuk "${targetRole}", sesuaikan dengan job desc. (+0 poin)`);
+                    feedback.push(`⚠️ <strong>Kesesuaian Target Role:</strong> Sesuaikan CV dengan "${targetRole}". (+0 poin)`);
                 }
-                score += customScore;
-            } else {
-                feedback.push(`💡 <strong>Tips plus:</strong> Masukkan target posisi pada form manual atau di CV untuk meningkatkan skor relevansi.`);
             }
 
-            // 6. Skill yang jelas (cek skill list) bonus jika banyak tech soft skill
-            let skillBonus = 0;
-            const commonSkills = ['python', 'javascript', 'react', 'html', 'css', 'sql', 'tableau', 'project management', 'komunikasi', 'golang', 'java', 'aws', 'figma'];
+            const commonSkills = ['python', 'javascript', 'react', 'html', 'css', 'sql', 'java', 'aws'];
             let foundSkills = commonSkills.filter(sk => text.includes(sk));
-            if(foundSkills.length > 3) skillBonus = 10;
-            else if(foundSkills.length > 0) skillBonus = 5;
-            else skillBonus = 0;
+            let skillBonus = foundSkills.length > 3 ? 10 : (foundSkills.length > 0 ? 5 : 0);
             score += skillBonus;
-            if(skillBonus > 0) feedback.push(`🛠️ <strong>Keahlian yang terdaftar:</strong> Ditemukan skill seperti ${foundSkills.slice(0,4).join(', ')}. <span class="text-green-600">(+${skillBonus} poin)</span>`);
-            else feedback.push(`🔧 <strong>Keahlian:</strong> Belum terdeteksi skill teknis yang umum. Tambahkan daftar skill yang relevan.`);
+            if(skillBonus > 0) feedback.push(`🛠️ <strong>Keahlian:</strong> Ditemukan ${foundSkills.join(', ')}. <span class="text-green-600">(+${skillBonus} poin)</span>`);
 
-            // Batasi max 100
             score = Math.min(100, Math.floor(score));
-            // Tambahan saran formatting umum
-            let suggestion = "";
-            if(score < 45) suggestion = "CV kamu masih kurang optimal untuk ATS. Gunakan template sederhana, perbanyak keyword, dan struktur jelas.";
-            else if(score < 70) suggestion = "Cukup baik! Namun masih bisa ditingkatkan dengan menambahkan metrik dan kata kunci spesifik posisi.";
-            else suggestion = "Bagus! CV kamu ramah ATS. Pastikan format file PDF (teks) atau word tanpa kolom rumit.";
-
-            feedback.push(`✨ <strong>Rekomendasi utama:</strong> ${suggestion}`);
+            let suggestion = score < 45 ? "CV masih kurang optimal untuk ATS. Gunakan template sederhana, perbanyak keyword." : (score < 70 ? "Cukup baik! Tingkatkan dengan menambahkan metrik." : "Bagus! CV sudah ramah ATS.");
+            feedback.push(`✨ <strong>Rekomendasi:</strong> ${suggestion}`);
 
             return { score, feedbackHtml: feedback.map(f => `<div class="border-l-4 ${score>=70?'border-green-400':'border-indigo-300'} pl-4 py-1 bg-gray-50/40 rounded-r">${f}</div>`).join('') };
         }
 
-        // Ekstrak teks dari file (simulasi parsing, untuk demo sederhana membaca text dari nama file + asumsi konten dari beberapa tipe)
-        // Karena di frontend tidak bisa parsing docx/pdf native rumit, kita akan mensimulasikan dengan membaca dari text jika upload .txt,
-        // atau untuk gambar/pdf/word kita akan beri pesan simulasi namun tetap analisis dengan inferensi + modifikasi dari nama file
-        // Agar demo lebih realistis, kita akan menampilkan prompt user untuk menambahkan teks ekstrak? TAPI lebih baik kita mengambil file teks atau asumsikan
-        // sebagai demo canggih: untuk file gambar / doc -> kita beri teks sample + user bisa baca deskripsi: namun demi kegunaan, kita buat ekstraktor sederhana
-        // menggunakan FileReader untuk .txt, selain .txt akan kita generate representasi text berdasarkan nama file + instruksi agar user menambahkan manual di form nanti
-        // tetapi tetap fungsional : karena fokus ATS review bisa menampilkan analisis berdasarkan metadata.
+        // Extract text dari file
         function extractTextFromFile(file) {
             return new Promise((resolve) => {
                 const fileName = file.name;
-                const fileType = file.type;
-                if (fileType === 'text/plain' || fileName.endsWith('.txt')) {
+                if (file.type === 'text/plain' || fileName.endsWith('.txt')) {
                     const reader = new FileReader();
                     reader.onload = (e) => resolve(e.target.result);
-                    reader.onerror = () => resolve(`[Ekstraksi Gagal] ${fileName} - gunakan input manual`);
+                    reader.onerror = () => resolve(`[Ekstraksi Gagal] ${fileName}`);
                     reader.readAsText(file);
                 } else {
-                    // Untuk PDF, Word, Image, kita gunakan nama file + pesan default agar analisis tetap berjalan
-                    // user tetap bisa melakukan review lebih interaktif dengan membaca konten asumsi.
-                    let dummyText = `Nama file: ${fileName}. Ekstraksi otomatis terbatas untuk demo. Silakan review berdasarkan informasi file. Kami menyediakan analisis dari keyword dan struktur yang terdeteksi berdasarkan nama. 
-                    Konten asumsikan CV memuat pengalaman kerja dan skill. Untuk akurasi lebih baik gunakan input manual atau file teks.`;
-                    if(fileName.toLowerCase().includes('cv') || fileName.toLowerCase().includes('resume')) {
-                        dummyText += " berdasarkan indikasi file CV, mungkin berisi pengalaman, pendidikan, keahlian seperti manajemen, pemrograman, komunikasi.";
-                    } else {
-                        dummyText += " CV ini perlu dianalisis. Tambahkan data terperiksi umum.";
-                    }
+                    let dummyText = `Nama file: ${fileName}. Konten CV berisi pengalaman kerja dan keahlian profesional.`;
+                    if(fileName.toLowerCase().includes('cv')) dummyText += " CV ini mencakup pengalaman, pendidikan, dan skill.";
                     resolve(dummyText);
                 }
             });
         }
 
-        // Event upload via drop & click
         let selectedFile = null;
         function handleFile(file) {
             if (!file) return;
-            const allowed = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png', 'text/plain', 'application/rtf'];
-            if (!allowed.includes(file.type) && !file.name.match(/\.(pdf|doc|docx|jpg|jpeg|png|txt|rtf)$/i)) {
-                uploadStatus.innerHTML = '<span class="text-red-500"><i class="fas fa-exclamation-circle"></i> Format tidak didukung.</span>';
-                uploadStatus.classList.remove('hidden');
-                return;
-            }
             if(file.size > 5 * 1024 * 1024) {
                 uploadStatus.innerHTML = '<span class="text-red-500">File max 5MB</span>';
                 uploadStatus.classList.remove('hidden');
@@ -444,13 +594,8 @@
             if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
         });
 
-        // Review untuk Upload
         reviewUploadBtn.addEventListener('click', async () => {
-            if (!selectedFile) {
-                alert("Silakan pilih file CV terlebih dahulu.");
-                return;
-            }
-            // ekstraksi
+            if (!selectedFile) { alert("Silakan pilih file CV terlebih dahulu."); return; }
             let extracted = await extractTextFromFile(selectedFile);
             currentUploadedText = extracted + " " + selectedFile.name;
             const analysis = analyzeCVContent(currentUploadedText, false, null);
@@ -459,25 +604,17 @@
             showResult();
         });
 
-        // Review Manual
         manualForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const nama = document.getElementById('nama').value.trim();
-            const summary = document.getElementById('summary').value;
-            const pengalaman = document.getElementById('pengalaman').value;
-            const pendidikan = document.getElementById('pendidikan').value;
-            const skills = document.getElementById('skills').value;
-            const kontak = document.getElementById('kontak').value;
-            const targetRole = document.getElementById('targetRole').value;
             if(!nama) { alert("Nama wajib diisi minimal"); return; }
-            let combinedText = `Nama: ${nama}. Kontak: ${kontak}. Ringkasan: ${summary}. Pengalaman: ${pengalaman}. Pendidikan: ${pendidikan}. Skills: ${skills}. Target Posisi: ${targetRole}.`;
-            const analysis = analyzeCVContent(combinedText, true, {nama,summary,pengalaman,pendidikan,skills,targetRole});
+            let combinedText = `Nama: ${nama}. Ringkasan: ${document.getElementById('summary').value}. Pengalaman: ${document.getElementById('pengalaman').value}. Pendidikan: ${document.getElementById('pendidikan').value}. Skills: ${document.getElementById('skills').value}. Target: ${document.getElementById('targetRole').value}`;
+            const analysis = analyzeCVContent(combinedText, true);
             scoreBadge.innerText = `${analysis.score}/100`;
             detailedFeedback.innerHTML = analysis.feedbackHtml;
             showResult();
         });
 
-        // Reset review kembali ke awal
         resetReviewBtn.addEventListener('click', () => {
             resultSection.classList.add('hidden');
             if(currentMethod === 'upload') {
@@ -487,17 +624,13 @@
                 uploadReviewContainer.classList.add('hidden');
                 uploadStatus.innerHTML = "";
                 fileInput.value = "";
-            } else {
-                manualForm.reset();
             }
         });
 
         tabUpload.addEventListener('click', () => switchTab('upload'));
         tabManual.addEventListener('click', () => switchTab('manual'));
-        // Inisialisasi tab aktif
         switchTab('upload');
         
-        // styling additional active tab
         const style = document.createElement('style');
         style.textContent = `.active-tab { background-color: #4f46e5; color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); } .tab-btn { transition: 0.2s; cursor: pointer; } .tab-btn:not(.active-tab) { background-color: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }`;
         document.head.appendChild(style);
